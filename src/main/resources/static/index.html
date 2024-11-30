@@ -83,7 +83,7 @@
         document.getElementById('result').innerHTML = `Erfolgreich gescannt: ${decodedText}`;
 
         // Sende die Daten an das Backend
-        fetch('http://gleaming-achievement-production.up.railway.app/checkin', {
+        fetch('https://gleaming-achievement-production.up.railway.app/checkin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ qrCode: decodedText })
