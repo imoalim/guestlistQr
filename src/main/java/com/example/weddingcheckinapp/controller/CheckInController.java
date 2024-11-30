@@ -39,4 +39,9 @@ public class CheckInController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @GetMapping
+    public ResponseEntity<String> getCheckIn() {
+        return ResponseEntity.ok("CheckInController works");
+    }
 }
