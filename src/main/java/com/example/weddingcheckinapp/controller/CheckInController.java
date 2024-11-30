@@ -33,7 +33,7 @@ public class CheckInController {
     @PostMapping()
     public ResponseEntity<String> checkIn(@RequestBody String qrCodeContent) {
         try {
-            String result = checkInService.validateQRCode(qrCodeContent);
+            String result = checkInService.validateQRCode(qrCodeContent)+"\nWORKS";
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
