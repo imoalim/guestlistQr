@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Check-In</title>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        #qr-reader {
+            width: 300px;
+            margin: 0 auto;
+            display: none; /* Start hidden */
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+        #start-scan-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Wedding Check-In</h1>
+<p>Scanne den QR-Code, um den Check-In zu starten.</p>
+<button id="start-scan-button">Kamera starten</button> <!-- Button, um Kamera zu starten -->
+<div id="qr-reader"></div>
+<div id="result"></div>
+
+<script>
+
+    // Funktion zum Starten des Scannens
+    function startScanning() {
+        document.getElementById('start-scan-button').style.display = 'none'; // Button verstecken
+        document.getElementById('qr-reader').style.display = 'block'; // Scanner anzeigen
+
+        // QR-Scanner initialisieren
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader",
+            { fps: 10, qrbox: 250 }
+        );
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    }
+
+    // Erfolg nach Scan
+    function onScanSuccess(decodedText, decodedResult) {
+        // Zeige den dekodierten Text an
+        document.getElementById('result').innerHTML = `Erfolgreich gescannt: ${decodedText}`;
+//TODO: wenn ich scanne bekomme ich den error undefined
+        // Sende die Daten an das Backend
+        fetch('https://192.168.0.127:8443/check-in', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ qrCode: decodedText })
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(`Backend Antwort: ${data.message}`);
+            })
+            .catch(err => {
+                console.error('Fehler beim Senden der Daten:', err);
+            });
+    }
+
+    // Fehler beim Scannen
+    function onScanFailure(error) {
+        console.warn(`Scan fehlgeschlagen: ${error}`);
+    }
+
+    // Event-Listener für den Button
+    document.getElementById('start-scan-button').addEventListener('click', startScanning);
+</script>
+</body>
+</html>
