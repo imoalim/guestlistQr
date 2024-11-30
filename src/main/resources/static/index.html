@@ -65,7 +65,7 @@
         document.getElementById('result').innerHTML = `Erfolgreich gescannt: ${decodedText}`;
 //TODO: wenn ich scanne bekomme ich den error undefined
         // Sende die Daten an das Backend
-        fetch('https://192.168.0.127:8443/check-in', {
+        fetch('https://gleaming-achievement-production.up.railway.app/checkin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ qrCode: decodedText })
