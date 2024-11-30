@@ -40,11 +40,13 @@
 <body>
 <h1>Wedding Check-In</h1>
 <p>Scanne den QR-Code, um den Check-In zu starten.</p>
-<button id="start-scan-button">Kamera starten</button> <!-- Button, um Kamera zu starten -->
+<button id="start-scan-button">Kamera starten</button>
 <div id="qr-reader"></div>
 <div id="result"></div>
 
 <script>
+    let scanner; // Referenz auf den QR-Scanner
+    let isProcessing = false; // Flag, um mehrfaches Senden zu verhindern
 
     // Funktion zum Starten des Scannens
     function startScanning() {
@@ -52,30 +54,55 @@
         document.getElementById('qr-reader').style.display = 'block'; // Scanner anzeigen
 
         // QR-Scanner initialisieren
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-            "qr-reader",
-            { fps: 10, qrbox: 250 }
-        );
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        scanner = new Html5Qrcode("qr-reader");
+        scanner.start(
+            { facingMode: "environment" }, // Rückkamera verwenden
+            { fps: 10, qrbox: 250 },
+            onScanSuccess,
+            onScanFailure
+        ).catch(err => {
+            console.error("Fehler beim Starten des Scanners:", err);
+        });
     }
 
     // Erfolg nach Scan
     function onScanSuccess(decodedText, decodedResult) {
+        if (isProcessing) {
+            return; // Wenn bereits eine Anfrage läuft, nichts tun
+        }
+        isProcessing = true; // Verhindert weitere Anfragen
+
+        // QR-Scanner stoppen
+        scanner.stop().then(() => {
+            console.log("Scanner gestoppt.");
+        }).catch(err => {
+            console.error("Fehler beim Stoppen des Scanners:", err);
+        });
+
         // Zeige den dekodierten Text an
         document.getElementById('result').innerHTML = `Erfolgreich gescannt: ${decodedText}`;
-//TODO: wenn ich scanne bekomme ich den error undefined
+
         // Sende die Daten an das Backend
         fetch('https://gleaming-achievement-production.up.railway.app/checkin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ qrCode: decodedText })
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 alert(`Backend Antwort: ${data.message}`);
             })
             .catch(err => {
                 console.error('Fehler beim Senden der Daten:', err);
+                alert(`Fehler: ${err.message}`);
+            })
+            .finally(() => {
+                isProcessing = false; // Nach Abschluss wieder freigeben
             });
     }
 
