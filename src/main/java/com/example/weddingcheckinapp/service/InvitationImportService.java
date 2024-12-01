@@ -51,7 +51,7 @@ public class InvitationImportService {
                 Invitation invitation = new Invitation();
                 invitation.setGuestName(guestName);
                 invitation.setAllowedGuests(allowedGuests);
-                invitation.setRemainingGuests(allowedGuests);
+                invitation.setRemainingGuests(allowedGuests+1); // +1 für die Person selbst
                 invitation.setQrCodeHash(qrCodeHash);
                 invitationRepository.save(invitation);
 

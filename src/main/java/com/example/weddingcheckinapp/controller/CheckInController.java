@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/checkin")
+@RequestMapping("/api/checkin")
 public class CheckInController {
 
     @Autowired
@@ -42,7 +42,7 @@ public class CheckInController {
 
          // Erfolg: Rückgabe der Nachricht
          return ResponseEntity.ok(Map.of("message", responseMessage));
-
+//
      } catch (RuntimeException e) {
          String errorMessage = "Fehler beim Verarbeiten des QR-Codes: " + e.getMessage();
          System.err.println(errorMessage); // Logge den Fehler

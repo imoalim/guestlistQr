@@ -16,19 +16,21 @@ public class CheckInService {
         Invitation invitation = invitationRepository.findByQrCodeHash(qrCodeContent)
                 .orElseThrow(() -> new RuntimeException("Einladung nicht gefunden. Bitte überprüfen Sie den QR-Code."));
 
+        // Berechnung: Berücksichtige, dass der Gastgeber selbst auch einen Platz benötigt
+        int totalAllowedGuests = invitation.getAllowedGuests() + 1; // Erlaubte Gäste + Gastgeber
+
         // Prüfen, ob noch verbleibende Plätze vorhanden sind
-        //TODO:Fix remaining guests
-        if (invitation.getRemainingGuests() <=0) {
+        if (invitation.getRemainingGuests() <= 0) {
             throw new RuntimeException("Keine verbleibenden Plätze für diese Einladung.");
         }
 
         // Verbleibende Gäste reduzieren
-        invitation.setRemainingGuests((invitation.getRemainingGuests()) - 1);
+        invitation.setRemainingGuests(invitation.getRemainingGuests() - 1);
         invitationRepository.save(invitation);
 
         // Erfolgreiche Rückmeldung
-        return String.format("Check-In erfolgreich! Willkommen '%s'. Verbleibende Plätze: %d",
-                invitation.getGuestName(), invitation.getRemainingGuests());
+        return String.format("Check-In erfolgreich! Willkommen '%s'. Verbleibende Plätze: %d von %d",
+                invitation.getGuestName(), invitation.getRemainingGuests(), totalAllowedGuests);
     }
 }
 

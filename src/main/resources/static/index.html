@@ -38,6 +38,11 @@
     </style>
 </head>
 <body>
+<nav>
+    <a href="index.html">QR-Code-Scanner</a>
+    <a href="guest-list.html">Gästeliste</a>
+</nav>
+
 <h1>Wedding Check-In</h1>
 <p>Scanne den QR-Code, um den Check-In zu starten.</p>
 <button id="start-scan-button">Kamera starten</button>
@@ -75,7 +80,7 @@
         console.log(`QR-Code gescannt: ${decodedText}`);
 
         // QR-Code an das Backend senden
-        fetch('http://localhost:8080/checkin', {
+        fetch('http://localhost:8080/api/checkin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ qrCode: decodedText }) // QR-Code direkt senden
