@@ -10,5 +10,6 @@ import java.util.UUID;
 @Repository
 public interface InvitationRepository extends JpaRepository<Invitation, UUID> {
     Optional<Invitation> findByQrCodeHash(String qrCodeHash);
+    boolean existsByGuestName(String guestName);
 }
 

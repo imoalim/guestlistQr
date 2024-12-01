@@ -67,17 +67,25 @@
 
     // Erfolg nach Scan
     function onScanSuccess(decodedText, decodedResult) {
+        if (isProcessing) {
+            return; // Verhindere weitere Verarbeitung, wenn bereits ein Request läuft
+        }
+        isProcessing = true; // Setze das Flag, um weitere Requests zu blockieren
+
         console.log(`QR-Code gescannt: ${decodedText}`);
 
         // QR-Code an das Backend senden
-        fetch('https://gleaming-achievement-production.up.railway.app/checkin', {
+        fetch('http://localhost:8080/checkin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ qrCode: decodedText }) // QR-Code direkt senden
         })
             .then(response => {
+                isProcessing = false; // Setze das Flag zurück, wenn der Request abgeschlossen ist
                 if (!response.ok) {
-                    throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+                    return response.json().then(err => {
+                        throw new Error(err.message || `HTTP Fehler: ${response.status}`);
+                    });
                 }
                 return response.json();
             })
@@ -86,16 +94,17 @@
                 alert(`Backend Antwort: ${data.message}`);
             })
             .catch(err => {
+                isProcessing = false; // Setze das Flag zurück bei einem Fehler
                 console.error('Fehler beim Senden der Daten:', err);
                 alert(`Fehler: ${err.message}`);
             });
     }
 
-
     // Fehler beim Scannen
     function onScanFailure(error) {
         console.warn(`Scan fehlgeschlagen: ${error}`);
     }
+
 
     // Event-Listener für den Button
     document.getElementById('start-scan-button').addEventListener('click', startScanning);
