@@ -23,38 +23,23 @@ public class CheckInController {
 
     private final InvitationRepository invitationRepository;
 
- @PostMapping
- public ResponseEntity<?> processQRCode(@RequestBody Map<String, String> payload) {
-     try {
-         // Extrahiere den QR-Code aus der Anfrage
-         String qrCode = payload.get("qrCode");
-         System.out.println("Erhaltener QR-Code: " + qrCode); // Logge den QR-Code für Debugging-Zwecke
+    @PostMapping
+    public ResponseEntity<?> processQRCode(@RequestBody Map<String, String> payload) {
+        String qrCode = payload.get("qrCode");
+        if (qrCode == null || qrCode.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "QR-Code darf nicht leer sein."));
+        }
 
-         // Fehlerbehandlung: QR-Code ist leer oder null
-         if (qrCode == null || qrCode.trim().isEmpty()) {
-             String errorMessage = "QR-Code darf nicht leer sein.";
-             System.err.println(errorMessage); // Logge den Fehler
-             return ResponseEntity.badRequest().body(Map.of("message", errorMessage));
-         }
+        String responseMessage = checkInService.validateQRCode(qrCode);
+        return ResponseEntity.ok(Map.of("message", responseMessage));
+    }
 
-         // Logik zur Verarbeitung des QR-Codes
-         String responseMessage = checkInService.validateQRCode(qrCode);
-
-         // Erfolg: Rückgabe der Nachricht
-         return ResponseEntity.ok(Map.of("message", responseMessage));
-//
-     } catch (RuntimeException e) {
-         String errorMessage = "Fehler beim Verarbeiten des QR-Codes: " + e.getMessage();
-         System.err.println(errorMessage); // Logge den Fehler
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", errorMessage));
-     } catch (Exception e) {
-         String errorMessage = "Interner Serverfehler: " + e.getMessage();
-         e.printStackTrace(); // Protokolliere den vollständigen Stacktrace
-         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", errorMessage));
-     }
- }
-
-
+    @GetMapping("/guests/{id}")
+    public ResponseEntity<Invitation> getGuestById(@PathVariable UUID id) {
+        return invitationRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
     @GetMapping
     public ResponseEntity<String> getCheckIn() {
         return ResponseEntity.ok("CheckInController works");
@@ -83,6 +68,14 @@ public class CheckInController {
                 .orElseGet(() -> ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body((Invitation) Map.of("message", "Gast nicht gefunden"))); // Einheitlicher Typ
+    }
+    @DeleteMapping("/guests/{id}")
+    public ResponseEntity<Void> deleteGuest(@PathVariable UUID id) {
+        if (invitationRepository.existsById(id)) {
+            invitationRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }

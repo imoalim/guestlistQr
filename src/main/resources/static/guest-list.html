@@ -5,14 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gästeliste</title>
     <link rel="stylesheet" href="style.css">
+    <script src="guest-list.js" defer></script>
 </head>
 <body>
 <nav>
     <a href="index.html">QR-Code-Scanner</a>
     <a href="guest-list.html">Gästeliste</a>
 </nav>
-
 <h1>Gästeliste</h1>
+
+<!-- Suchleiste -->
+<div id="search-container">
+    <input type="text" id="search-input" placeholder="Nach Namen suchen...">
+</div>
+
 <table id="guest-table">
     <thead>
     <tr>
@@ -20,6 +26,8 @@
         <th>Erlaubte Gäste</th>
         <th>Verbleibende Gäste</th>
         <th>Eingecheckt</th>
+        <th>QR-Code</th>
+        <th>Aktionen</th>
     </tr>
     </thead>
     <tbody>
@@ -27,6 +35,35 @@
     </tbody>
 </table>
 
-<script src="guest-list.js"></script>
+<!-- Formular für Hinzufügen/Bearbeiten -->
+<div id="form-container" style="display: none;">
+    <h2 id="form-title">Gast hinzufügen</h2>
+    <form id="guest-form">
+        <input type="hidden" id="guest-id">
+        <label>
+            Name:
+            <input type="text" id="guest-name" required>
+        </label>
+        <label>
+            Erlaubte Gäste:
+            <input type="number" id="allowed-guests" required>
+        </label>
+        <label>
+            Verbleibende Gäste:
+            <input type="number" id="remaining-guests" required>
+        </label>
+        <label>
+            Eingecheckt:
+            <select id="checked-in">
+                <option value="true">Ja</option>
+                <option value="false">Nein</option>
+            </select>
+        </label>
+        <button type="submit">Speichern</button>
+        <button type="button" id="cancel-button">Abbrechen</button>
+    </form>
+</div>
+
+<button id="add-button">Gast hinzufügen</button>
 </body>
 </html>

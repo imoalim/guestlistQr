@@ -5,37 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedding Check-In</title>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            margin: 20px 0;
-        }
-        #qr-reader {
-            width: 300px;
-            margin: 0 auto;
-            display: none; /* Start hidden */
-        }
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-            color: green;
-        }
-        #start-scan-button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js" defer></script>
 </head>
 <body>
 <nav>
@@ -45,74 +16,10 @@
 
 <h1>Wedding Check-In</h1>
 <p>Scanne den QR-Code, um den Check-In zu starten.</p>
-<button id="start-scan-button">Kamera starten</button>
 <div id="qr-reader"></div>
 <div id="result"></div>
-
-<script>
-    let scanner; // Referenz auf den QR-Scanner
-    let isProcessing = false; // Flag, um mehrfaches Senden zu verhindern
-
-    // Funktion zum Starten des Scannens
-    function startScanning() {
-        document.getElementById('start-scan-button').style.display = 'none'; // Button verstecken
-        document.getElementById('qr-reader').style.display = 'block'; // Scanner anzeigen
-
-        // QR-Scanner initialisieren
-        scanner = new Html5Qrcode("qr-reader");
-        scanner.start(
-            { facingMode: "environment" }, // Rückkamera verwenden
-            { fps: 10, qrbox: 250 },
-            onScanSuccess,
-            onScanFailure
-        ).catch(err => {
-            console.error("Fehler beim Starten des Scanners:", err);
-        });
-    }
-
-    // Erfolg nach Scan
-    function onScanSuccess(decodedText, decodedResult) {
-        if (isProcessing) {
-            return; // Verhindere weitere Verarbeitung, wenn bereits ein Request läuft
-        }
-        isProcessing = true; // Setze das Flag, um weitere Requests zu blockieren
-
-        console.log(`QR-Code gescannt: ${decodedText}`);
-
-        // QR-Code an das Backend senden
-        fetch('http://localhost:8080/api/checkin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ qrCode: decodedText }) // QR-Code direkt senden
-        })
-            .then(response => {
-                isProcessing = false; // Setze das Flag zurück, wenn der Request abgeschlossen ist
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.message || `HTTP Fehler: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Zeige die Antwort vom Backend an
-                alert(`Backend Antwort: ${data.message}`);
-            })
-            .catch(err => {
-                isProcessing = false; // Setze das Flag zurück bei einem Fehler
-                console.error('Fehler beim Senden der Daten:', err);
-                alert(`Fehler: ${err.message}`);
-            });
-    }
-
-    // Fehler beim Scannen
-    function onScanFailure(error) {
-        console.warn(`Scan fehlgeschlagen: ${error}`);
-    }
+<button id="start-scan-button">QR-Code scannen</button>
 
 
-    // Event-Listener für den Button
-    document.getElementById('start-scan-button').addEventListener('click', startScanning);
-</script>
 </body>
 </html>
