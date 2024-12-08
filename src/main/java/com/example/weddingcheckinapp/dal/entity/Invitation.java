@@ -17,11 +17,20 @@ public class Invitation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Column(name = "guest_name") // Matches "guest_name" in the database
     private String guestName;
-    private String qrCodeHash; // QR-Inhalt (Hash oder plain)
-    private int allowedGuests; // Gesamtanzahl erlaubter Gäste
-    private int remainingGuests; // Verbleibende Gäste
-    private boolean checkedIn; // Hauptgast eingecheckt
+
+    @Column(name = "qr_code_hash") // Matches "qr_code_hash" in the database
+    private String qrCodeHash;
+
+    @Column(name = "allowed_guests") // Matches "allowed_guests" in the database
+    private int allowedGuests;
+
+    @Column(name = "remaining_guests") // Matches "remaining_guests" in the database
+    private int remainingGuests;
+
+    @Column(name = "checked_in") // Matches "checked_in" in the database
+    private boolean checkedIn;
 
     public void decrementRemainingGuests(int count) {
         if (remainingGuests >= count) {
